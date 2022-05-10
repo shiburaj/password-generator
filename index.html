@@ -8,81 +8,76 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="flex justify-center font-mono items-center min-h-screen bg-blue-100 ">
-    <div class="container">
+    <div id="app" class="container">
         <div class="flex justify-center mb-5">
             <h1 class="text-4xl text-blue-800 font-bold text-center px-3">Strong <span class="text-green-500">Password</span> Generator</h1>
         </div>
         <form class="flex justify-center flex-wrap text-xl bg-blue-200 sm:rounded-t-xl p-3">
             <div class="w-full flex justify-center my-4 mx-3">
                 <label for="length" class="italic mx-3">Length</label>
-                <input type="range" class="w-full" name="length" id="length" min="5" max="25" value="10">
+                <input type="range" v-model="length" class="w-full" name="length" id="length" min="3" max="25" >
+                <label for="length" class="italic mx-3">{{ length }}</label>
             </div>
             <div class="flex flex-wrap">
                 <div class="w-1/2">
-                    <input type="checkbox" name="uppercase" id="uppercase" checked>
+                    <input type="checkbox" class="mr-1 " name="uppercase" v-model="uppercase" id="uppercase" >
                     <label for="uppercase">Uppercase</label>
                 </div>
                 <div class="w-1/2">
-                    <input type="checkbox" name="lowercase" id="lowercase" checked>
+                    <input type="checkbox" class="mr-1" name="lowercase" v-model="lowercase"  id="lowercase" >
                     <label for="lowercase">Lowercase</label>
                 </div>
                 <div class="w-1/2">
-                    <input type="checkbox" name="numbers" id="numbers" checked>
+                    <input type="checkbox" class="mr-1" name="numbers" v-model="numbers" id="numbers" >
                     <label for="numbers">Numbers</label>
                 </div>
                 <div class="w-1/2">
-                    <input type="checkbox" name="symbols" id="symbols" checked>
+                    <input type="checkbox" class="mr-1" name="symbols" v-model="symbols" id="symbols" >
                     <label for="symbols">Symbols</label>
                 </div>
             </div>
             <div class="flex justify-center my-5">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Generate</button>
+                <button type="submit" @click.prevent="generatePassword()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Generate</button>
             </div>
         </form>
-        <div class="flex flex-col justify-center items-center bg-blue-300 p-3">
+        <div v-if="password" class="flex flex-col justify-center items-center bg-blue-300 p-3">
             <div class="w-full border-2 border-blue-200 rounded-xl pb-3 pt-6 px-3 shadow leading-0 mb-5">
-                <h1 class="text-center text-6xl text-blue-100 w-full">******</h1>
+                <h1 class="text-center text-6xl text-blue-100 w-full">{{ get_password }}</h1>
             </div>
             <div class="flex justify-center items-center mb-1 gap-1">
-                <span class="w-6 h-6 bg-red-800 border border-red-800 shadow shadow-red-100 rounded-full"></span>
-                <span class="w-6 h-6 bg-red-500 border border-red-800 shadow shadow-red-100 rounded-full"></span>
-                <span class="w-6 h-6 bg-yellow-500 border border-yellow-800 shadow shadow-yellow-100 rounded-full"></span>
-                <span class="w-6 h-6 bg-yellow-300 border border-yellow-800 shadow shadow-yellow-100 rounded-full"></span>
-                <span class="w-6 h-6 bg-green-500 border border-green-800 shadow shadow-green-500 rounded-full"></span>
-                <span class="w-6 h-6 bg-green-300 border border-green-800 shadow shadow-green-300 rounded-full"></span>
-            </div>
-            <div class="flex justify-center items-center mb-1 gap-1">
-                <span class="w-6 h-6 bg-red-800 border border-red-800 shadow shadow-red-100 rounded-full"></span>
-                <span class="w-6 h-6 bg-red-500 border border-red-800 shadow shadow-red-100 rounded-full"></span>
-                <span class="w-6 h-6  border border-yellow-800 shadow shadow-yellow-100 rounded-full"></span>
-                <span class="w-6 h-6  border border-yellow-800 shadow shadow-yellow-100 rounded-full"></span>
-                <span class="w-6 h-6  border border-green-800 shadow shadow-green-500 rounded-full"></span>
-                <span class="w-6 h-6  border border-green-800 shadow shadow-green-300 rounded-full"></span>
+                <span v-if="get_strength >= 1" class="w-6 h-6 bg-red-800 border border-red-800 shadow shadow-red-100 rounded-full"></span>
+                <span v-if="get_strength >= 2"  class="w-6 h-6 bg-red-500 border border-red-800 shadow shadow-red-100 rounded-full"></span>
+                <span v-if="get_strength >= 3"  class="w-6 h-6 bg-yellow-500 border border-yellow-800 shadow shadow-yellow-100 rounded-full"></span>
+                <span v-if="get_strength >= 4" class="w-6 h-6 bg-yellow-300 border border-yellow-800 shadow shadow-yellow-100 rounded-full"></span>
+                <span v-if="get_strength >= 5"  class="w-6 h-6 bg-green-500 border border-green-800 shadow shadow-green-500 rounded-full"></span>
+                <span v-if="get_strength >= 6"  class="w-6 h-6 bg-green-300 border border-green-800 shadow shadow-green-300 rounded-full"></span>
             </div>
             <div class="text-center mb-0">
-                <small class="text-xs text-green-900 font-bold">Very Strong</small>
+                <small class="text-xs text-gray-600 font-bold">{{ get_strength_text }}</small>
             </div>
         </div>
-        <div class="flex justify-between">
-                <button class="bg-gray-500 hover:bg-gray-600 text-blue-50 p-3 rounded-b-xl flex">
+        <div v-if="password" class="flex justify-between">
+                <button @click.prevent="copyPassword()" class="bg-gray-500 hover:bg-gray-600 text-blue-50 p-3 rounded-b-xl flex gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                     <span>Copy</span>
                 </button>
-                <button class="bg-gray-500 hover:bg-gray-600 text-blue-50 p-3 rounded-b-xl flex">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <button @click.prevent="show = !show" class="bg-gray-500 hover:bg-gray-600 text-blue-50 p-3 rounded-b-xl flex gap-2">
+                    <svg v-if="!show" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg v-if="show" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                     </svg>
-                    <span>Show</span>
+                    <span v-if="!show">Show</span>
+                    <span v-if="show">Hide</span>
                 </button>
         </div>
 
     </div>
-    
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="./script-vue.js" "></script>
 </body>
 </html>

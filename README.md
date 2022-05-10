@@ -2,7 +2,7 @@
 
 Vue and React Strong Password Generator App.
 
-[Demo](index.html)
+[Demo](https://shiburaj.github.io/password-generator/)
 
 ### Frameworks Used
 - Tailwind
